@@ -4,18 +4,20 @@
 
 @layer base {
   :root {
-    --color-primary: 200 138 136;
+    --color-primary: 232 183 181;
+    --color-peach: 248 216 200;
+    --color-nude: 232 199 183;
     --color-background: 250 247 242;
   }
 
   body {
     background-color: #FAF7F2;
-    color: #2D2424;
+    color: #292321;
     font-family: var(--font-inter), sans-serif;
     overflow-x: hidden;
   }
 
-  /* Custom subtle scrollbar */
+  /* Custom subtle peach/rose scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -24,17 +26,17 @@
     background: #FAF7F2;
   }
   ::-webkit-scrollbar-thumb {
-    background: #DEB2B2;
+    background: #E8C7B7;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #C88A88;
+    background: #B97878;
   }
 }
 
 @layer utilities {
   .text-shadow-subtle {
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(200, 138, 136, 0.15);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(232, 183, 181, 0.2);
   }
   
   .backdrop-blur-luxury {
@@ -42,25 +44,35 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .bg-radial-soft {
-    background: radial-gradient(circle at 30% 40%, rgba(253, 246, 246, 0.95) 0%, rgba(250, 247, 242, 0.8) 50%, rgba(250, 247, 242, 0) 100%);
+    background: radial-gradient(circle at 30% 40%, rgba(254, 247, 244, 0.95) 0%, rgba(250, 247, 242, 0.8) 50%, rgba(250, 247, 242, 0) 100%);
   }
 
   .bg-hero-gradient {
     background: linear-gradient(
       90deg,
-      rgba(250, 247, 242, 0.96) 0%,
-      rgba(250, 247, 242, 0.88) 35%,
-      rgba(250, 247, 242, 0.45) 60%,
-      rgba(250, 247, 242, 0.05) 100%
+      rgba(250, 247, 242, 0.97) 0%,
+      rgba(250, 247, 242, 0.90) 38%,
+      rgba(250, 247, 242, 0.50) 65%,
+      rgba(250, 247, 242, 0.08) 100%
     );
   }
 
   .bg-hero-mobile-gradient {
     background: linear-gradient(
       180deg,
-      rgba(250, 247, 242, 0.2) 0%,
-      rgba(250, 247, 242, 0.85) 45%,
+      rgba(250, 247, 242, 0.15) 0%,
+      rgba(250, 247, 242, 0.75) 40%,
       rgba(250, 247, 242, 0.98) 100%
     );
   }

@@ -63,6 +63,9 @@ const inter = Inter({
 
 
 import { GlobalPetalCanvas } from "@/components/GlobalPetalCanvas";
+import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { CartDrawer } from "@/components/CartDrawer";
 
 export default function RootLayout({
   children,
@@ -75,9 +78,15 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} ${cormorant.variable} ${alexBrush.variable} scroll-smooth`}
     >
       <body className="bg-ayra-ivory text-ayra-charcoal antialiased selection:bg-ayra-rose-light/40 selection:text-ayra-charcoal-dark min-h-screen flex flex-col">
-        {/* Global Floral Atmosphere & Falling Petals Canvas Engine */}
-        <GlobalPetalCanvas />
-        {children}
+        <CartProvider>
+          <WishlistProvider>
+            {/* Global Floral Atmosphere & Falling Petals Canvas Engine */}
+            <GlobalPetalCanvas />
+            {children}
+            {/* Slide-out Shopping Cart Drawer */}
+            <CartDrawer />
+          </WishlistProvider>
+        </CartProvider>
       </body>
     </html>
   );

@@ -68,6 +68,8 @@ export const Hero: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -95,7 +97,7 @@ export const Hero: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextSlide, prevSlide]);
 
-  // Auto Slider rotation (every 6 seconds, paused on hover)
+  // Auto Slider rotation (every 6.5 seconds, paused on hover or touch)
   useEffect(() => {
     if (isPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -104,20 +106,51 @@ export const Hero: React.FC = () => {
 
     timerRef.current = setInterval(() => {
       nextSlide();
-    }, 6000);
+    }, 6500);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isPaused, nextSlide]);
 
+  // Touch handlers for mobile swipe navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchStartX.current - touchEndX;
+    const deltaY = touchStartY.current - touchEndY;
+
+    // Trigger swipe if horizontal movement is greater than vertical & exceeds 40px
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
+      if (deltaX > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   const activeSlide = HERO_SLIDES[currentSlide];
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-[#FAF7F2] min-h-[640px] h-[78vh] lg:min-h-[700px] lg:max-h-[820px] flex items-center select-none"
+      className="relative w-full overflow-hidden bg-[#FAF7F2] min-h-[560px] sm:min-h-[640px] md:h-[78vh] lg:min-h-[700px] lg:max-h-[820px] flex items-center select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       role="region"
       aria-roledescription="carousel"
       aria-label="Ayra Hampers Luxury Collection"
@@ -136,7 +169,7 @@ export const Hero: React.FC = () => {
         ))}
       </div>
 
-      {/* ACTIVE HERO SLIDE (Layered Crossfade & Synchronized Right->Left Text Entrance) */}
+      {/* ACTIVE HERO SLIDE (Layered Crossfade & Synchronized Text Entrance) */}
       <AnimatePresence mode="sync">
         <HeroSlide
           key={activeSlide.id}

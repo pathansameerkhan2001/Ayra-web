@@ -92,8 +92,8 @@
     </text>
 
     <!-- Signature Heart Line Divider -->
-    <line x1="3" y1="79" x2="68" y2="79" stroke="#E5B5B3" stroke-width="0.85" />
-    <path d="M74 77.5 C74 75.5, 71.5 74.5, 70 76 C68.5 74.5, 66 75.5, 66 77.5 C66 80, 70 82.5, 70 82.5 C70 82.5, 74 80, 74 77.5 Z" fill="#C88A88" transform="translate(4, -1)" />
-    <line x1="82" y1="79" x2="148" y2="79" stroke="#E5B5B3" stroke-width="0.85" />
+    <line x1="3" y1="79" x2="68" y2="79" stroke="#E8B7B5" stroke-width="0.85" />
+    <path d="M74 77.5 C74 75.5, 71.5 74.5, 70 76 C68.5 74.5, 66 75.5, 66 77.5 C66 80, 70 82.5, 70 82.5 C70 82.5, 74 80, 74 77.5 Z" fill="#B97878" transform="translate(4, -1)" />
+    <line x1="82" y1="79" x2="148" y2="79" stroke="#E8B7B5" stroke-width="0.85" />
   </g>
 </svg>

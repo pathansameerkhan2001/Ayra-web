@@ -20,7 +20,7 @@ export const HeroControls: React.FC<HeroControlsProps> = ({
 }) => {
   return (
     <div
-      className="absolute bottom-6 right-6 sm:bottom-10 sm:right-12 z-30 flex items-center space-x-3.5 bg-[#FFFDF9]/85 backdrop-blur-md px-3.5 py-2 rounded-full border border-[#F0DDD8] shadow-[0_4px_16px_rgba(45,36,36,0.06)]"
+      className="absolute bottom-4 right-4 sm:bottom-8 sm:right-10 z-30 flex items-center space-x-2 sm:space-x-3 bg-[#FFFDF9]/90 backdrop-blur-md px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full border border-[#F2DDD4] shadow-[0_4px_16px_rgba(41,35,33,0.06)] select-none"
       role="group"
       aria-label="Carousel navigation controls"
     >
@@ -28,14 +28,14 @@ export const HeroControls: React.FC<HeroControlsProps> = ({
       <button
         type="button"
         onClick={onPrev}
-        className="p-1 text-[#5A4545] hover:text-[#B26E6C] transition-colors rounded-full hover:bg-[#FAF0ED] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B26E6C]"
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#5C4A48] hover:text-[#B97878] transition-colors rounded-full hover:bg-[#FAF1EC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878]"
         aria-label="Previous slide"
       >
         <ChevronLeft className="w-4 h-4 stroke-[2]" />
       </button>
 
-      {/* 5 Pagination Indicator Dots */}
-      <div className="flex items-center space-x-2 px-1">
+      {/* Pagination Indicator Dots */}
+      <div className="flex items-center space-x-1.5 sm:space-x-2 px-1">
         {Array.from({ length: totalSlides }).map((_, idx) => {
           const isActive = currentSlide === idx;
           return (
@@ -43,10 +43,10 @@ export const HeroControls: React.FC<HeroControlsProps> = ({
               key={idx}
               type="button"
               onClick={() => onSelect(idx)}
-              className={`transition-all duration-300 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B26E6C] ${
+              className={`transition-all duration-300 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878] ${
                 isActive
-                  ? "w-6 h-1.5 bg-[#B26E6C]"
-                  : "w-1.5 h-1.5 bg-[#D4B5B3] hover:bg-[#B26E6C]/60"
+                  ? "w-5 sm:w-6 h-1.5 bg-[#B97878]"
+                  : "w-1.5 h-1.5 bg-[#E8C7B7] hover:bg-[#B97878]/60"
               }`}
               aria-label={`Go to slide ${idx + 1}`}
               aria-current={isActive ? "true" : "false"}
@@ -59,7 +59,7 @@ export const HeroControls: React.FC<HeroControlsProps> = ({
       <button
         type="button"
         onClick={onNext}
-        className="p-1 text-[#5A4545] hover:text-[#B26E6C] transition-colors rounded-full hover:bg-[#FAF0ED] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B26E6C]"
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[#5C4A48] hover:text-[#B97878] transition-colors rounded-full hover:bg-[#FAF1EC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878]"
         aria-label="Next slide"
       >
         <ChevronRight className="w-4 h-4 stroke-[2]" />
