@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Heart } from "lucide-react";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 
 export interface SlideContent {
   id: number;
@@ -26,185 +27,229 @@ interface HeroSlideProps {
 const LUXURY_EASE = [0.22, 1, 0.36, 1];
 
 export const HeroSlide: React.FC<HeroSlideProps> = ({ slide, isFirst }) => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile, { passive: true });
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // Motion variants: subtle vertical translation on mobile, smooth horizontal on desktop
-  const getInitial = (xOffset = 60, yOffset = 16) => {
-    return isMobile ? { opacity: 0, y: yOffset } : { opacity: 0, x: xOffset };
-  };
-
-  const getExit = () => {
-    return isMobile
-      ? { opacity: 0, y: -8, transition: { duration: 0.25, ease: "easeIn" } }
-      : { opacity: 0, x: -16, transition: { duration: 0.3, ease: "easeIn" } };
-  };
+  const imageUrl = getStoragePublicUrl(slide.image);
 
   return (
-    <div className="absolute inset-0 w-full h-full flex items-center overflow-hidden">
-      
-      {/* 1. CINEMATIC BACKGROUND IMAGE LAYER (Crossfade + High Quality Responsive Fit) */}
-      <motion.div
-        initial={{ opacity: 0, scale: 1.012 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{
-          duration: 1.1,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        className="absolute inset-0 w-full h-full"
-      >
-        <Image
-          src={slide.image}
-          alt={`${slide.eyebrow} - ${slide.headline1} ${slide.headline2}`}
-          fill
-          priority={isFirst}
-          quality={90}
-          sizes="100vw"
-          className="object-cover object-[75%_center] sm:object-[70%_center] md:object-[68%_center] lg:object-right select-none"
-        />
+    <div className="w-full">
+      {/* ========================================================================= */}
+      {/* 1. DESKTOP CINEMATIC COMPOSITION (md: and above, >=768px)                */}
+      {/* Full-width image background with left gradient overlay & editorial text   */}
+      {/* ========================================================================= */}
+      <div className="hidden md:flex absolute inset-0 w-full h-full items-center overflow-hidden">
+        {/* Background Image Layer */}
+        <motion.div
+          initial={{ opacity: 0, scale: 1.012 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0 w-full h-full"
+        >
+          <Image
+            src={imageUrl}
+            alt={`${slide.eyebrow} - ${slide.headline1} ${slide.headline2}`}
+            fill
+            priority={isFirst}
+            quality={90}
+            sizes="100vw"
+            className="object-cover object-[72%_center] lg:object-right select-none"
+          />
 
-        {/* Desktop Left-to-Right Subtle Warm Ivory & Peach Gradient Overlay */}
-        <div
-          className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/97 via-[#FAF7F2]/85 via-45% to-transparent w-[76%] lg:w-[60%] pointer-events-none"
-          aria-hidden="true"
-        />
+          {/* Left-to-Right Subtle Warm Ivory & Peach Gradient Overlay */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/98 via-[#FAF7F2]/88 via-45% to-transparent w-[76%] lg:w-[60%] pointer-events-none"
+            aria-hidden="true"
+          />
+        </motion.div>
 
-        {/* Mobile Vertical Subtle Warm Ivory & Peach Gradient Overlay */}
-        <div
-          className="md:hidden absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/20 via-[#FAF7F2]/82 via-40% to-[#FAF7F2]/98 pointer-events-none"
-          aria-hidden="true"
-        />
-      </motion.div>
+        {/* Desktop Content Layer */}
+        <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8 w-full py-12 md:py-16">
+          <div className="max-w-xl lg:max-w-2xl text-left" style={{ transform: "translateZ(0)" }}>
+            {/* Eyebrow Badge */}
+            <motion.div
+              initial={{ opacity: 0, x: 35 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.65, delay: 0.06, ease: LUXURY_EASE }}
+              className="flex items-center space-x-2.5 mb-3.5"
+            >
+              <span className="w-6 h-[1px] bg-[#B97878]/70" />
+              <span className="text-xs font-sans tracking-[0.28em] text-[#8C4A4A] uppercase font-semibold">
+                {slide.eyebrow}
+              </span>
+              <span className="w-6 h-[1px] bg-[#B97878]/70" />
+            </motion.div>
 
-      {/* 2. HTML CONTENT LAYER (Vertical Mobile Composition / Luxury Desktop Alignment) */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 sm:py-12 md:py-16">
-        <div className="max-w-xl lg:max-w-2xl text-left" style={{ transform: "translateZ(0)" }}>
-          
-          {/* 1. Eyebrow Badge (0.08s entrance) */}
+            {/* Main Headline */}
+            <div className="mb-4">
+              <motion.h1
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.7, delay: 0.12, ease: LUXURY_EASE }}
+                className="text-6xl lg:text-[76px] xl:text-[84px] font-serif font-normal text-[#292321] tracking-tight leading-[1.04]"
+              >
+                {slide.headline1}
+              </motion.h1>
+
+              <motion.span
+                initial={{ opacity: 0, x: 45 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.75, delay: 0.2, ease: LUXURY_EASE }}
+                className="block font-script text-6xl lg:text-[86px] xl:text-[96px] text-[#B97878] font-normal tracking-wide -mt-2 pb-1"
+              >
+                {slide.headline2}
+              </motion.span>
+            </div>
+
+            {/* Supporting Heading & Divider */}
+            <motion.div
+              initial={{ opacity: 0, x: 35 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.7, delay: 0.28, ease: LUXURY_EASE }}
+              className="space-y-3 mb-8"
+            >
+              <p className="text-xs md:text-sm tracking-[0.22em] text-[#4D3F3D] uppercase font-medium">
+                {slide.supporting}
+              </p>
+
+              <div className="flex items-center space-x-2.5 max-w-xs">
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#E8B7B5]" />
+                <Heart className="w-3.5 h-3.5 text-[#B97878] fill-[#B97878]/30" />
+                <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#E8B7B5]" />
+              </div>
+
+              <p className="text-sm md:text-base text-[#4D3F3D] font-light leading-relaxed max-w-lg">
+                {slide.description}
+              </p>
+            </motion.div>
+
+            {/* Editorial CTA */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.7, delay: 0.38, ease: LUXURY_EASE }}
+            >
+              <Link
+                href={slide.href}
+                className="group inline-flex items-center space-x-3 text-xs md:text-sm font-sans tracking-[0.2em] uppercase font-semibold text-[#292321] hover:text-[#B97878] transition-colors duration-300 py-2 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878]"
+                aria-label={`Explore ${slide.theme} collection`}
+              >
+                <span className="relative">
+                  EXPLORE OUR COLLECTIONS
+                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#B97878] origin-left scale-x-75 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#B97878] transform transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 2. MOBILE PURPOSE-BUILT COMPOSITION (<768px: 320px–767px)                */}
+      {/* Clear vertical hierarchy: Image -> Content -> Touch CTA                   */}
+      {/* ========================================================================= */}
+      <div className="md:hidden flex flex-col w-full px-3.5 xs:px-4 sm:px-6 pt-3 pb-6">
+        {/* 1. TOP: Clean, Unobstructed Hamper Photography Container */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.985 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.2 } }}
+          transition={{ duration: 0.55, ease: LUXURY_EASE }}
+          className="relative w-full aspect-[16/10.5] xs:aspect-[16/10] sm:aspect-[16/9.5] rounded-2xl overflow-hidden shadow-[0_4px_18px_rgba(217,136,109,0.12)] border border-[#EEDAD2] bg-[#FAF7F2] mb-3.5"
+        >
+          <Image
+            src={imageUrl}
+            alt={`${slide.eyebrow} - ${slide.headline1} ${slide.headline2}`}
+            fill
+            priority={isFirst}
+            quality={88}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover object-center select-none"
+          />
+
+          {/* Theme Pill Badge at Top-Left of Image */}
+          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-[#FAF7F2]/95 backdrop-blur-md border border-[#F2DDD4] text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8C4A4A] shadow-sm">
+            {slide.theme}
+          </div>
+        </motion.div>
+
+        {/* 2. BOTTOM: Clean Separated Text Content */}
+        <div className="flex flex-col text-left space-y-2">
+          {/* Eyebrow */}
           <motion.div
-            initial={getInitial(50, 12)}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={getExit()}
-            transition={{
-              duration: 0.75,
-              delay: 0.08,
-              ease: LUXURY_EASE,
-            }}
-            className="flex items-center space-x-2 sm:space-x-2.5 mb-2.5 sm:mb-4"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.45, delay: 0.04, ease: LUXURY_EASE }}
+            className="flex items-center space-x-2"
           >
-            <span className="w-5 sm:w-7 h-[1px] bg-[#B97878]/70" />
-            <span className="text-[10px] sm:text-xs font-sans tracking-[0.24em] sm:tracking-[0.28em] text-[#8C4A4A] uppercase font-semibold">
+            <span className="w-4 h-[1px] bg-[#B97878]/70" />
+            <span className="text-[10px] xs:text-[10.5px] font-sans tracking-[0.24em] text-[#8C4A4A] uppercase font-semibold">
               {slide.eyebrow}
             </span>
-            <span className="w-5 sm:w-7 h-[1px] bg-[#B97878]/70" />
+            <span className="w-4 h-[1px] bg-[#B97878]/70" />
           </motion.div>
 
-          {/* 2. Main Headline (Serif Line 1 + Script Accent Line 2) */}
-          <div className="mb-3.5 sm:mb-5">
-            {/* Line 1: Timeless Serif */}
-            <motion.h1
-              initial={getInitial(55, 16)}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={getExit()}
-              transition={{
-                duration: 0.8,
-                delay: 0.16,
-                ease: LUXURY_EASE,
-              }}
-              className="text-[36px] xs:text-[42px] sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] font-serif font-normal text-[#292321] tracking-tight leading-[1.04]"
-            >
-              {slide.headline1}
-            </motion.h1>
-
-            {/* Line 2: Elegant Script Accent */}
-            <motion.span
-              initial={getInitial(60, 16)}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={getExit()}
-              transition={{
-                duration: 0.85,
-                delay: 0.28,
-                ease: LUXURY_EASE,
-              }}
-              className="block font-script text-[44px] xs:text-[52px] sm:text-6xl md:text-7xl lg:text-[86px] xl:text-[96px] text-[#B97878] font-normal tracking-wide -mt-1.5 sm:-mt-2 pb-1"
-            >
-              {slide.headline2}
-            </motion.span>
-          </div>
-
-          {/* 3. Supporting Heading & Delicate Heart Divider */}
+          {/* Headline (Line 1 Serif + Line 2 Script) */}
           <motion.div
-            initial={getInitial(50, 14)}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={getExit()}
-            transition={{
-              duration: 0.8,
-              delay: 0.4,
-              ease: LUXURY_EASE,
-            }}
-            className="space-y-2.5 sm:space-y-3.5 mb-6 sm:mb-9"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.5, delay: 0.08, ease: LUXURY_EASE }}
+            className="leading-tight"
           >
-            <p className="text-[11px] sm:text-xs md:text-sm tracking-[0.18em] sm:tracking-[0.22em] text-[#4D3F3D] uppercase font-medium">
+            <h1 className="text-[28px] xs:text-[32px] sm:text-[36px] font-serif font-normal text-[#292321] tracking-tight leading-[1.06]">
+              {slide.headline1}
+            </h1>
+            <span className="block font-script text-[38px] xs:text-[44px] sm:text-[50px] text-[#B97878] font-normal tracking-wide -mt-1 leading-none">
+              {slide.headline2}
+            </span>
+          </motion.div>
+
+          {/* Supporting & Heart Divider */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.5, delay: 0.14, ease: LUXURY_EASE }}
+            className="space-y-1.5 pt-0.5"
+          >
+            <p className="text-[10.5px] xs:text-[11.5px] sm:text-xs tracking-[0.16em] text-[#4D3F3D] uppercase font-medium">
               {slide.supporting}
             </p>
 
-            {/* Rose Heart Line Divider Motif */}
-            <div className="flex items-center space-x-2.5 max-w-[200px] sm:max-w-xs">
+            <div className="flex items-center space-x-2 max-w-[170px]">
               <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#E8B7B5]" />
-              <Heart className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#B97878] fill-[#B97878]/30" />
+              <Heart className="w-3 h-3 text-[#B97878] fill-[#B97878]/30" />
               <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#E8B7B5]" />
             </div>
 
-            {/* Description */}
-            <motion.p
-              initial={getInitial(45, 12)}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={getExit()}
-              transition={{
-                duration: 0.8,
-                delay: 0.52,
-                ease: LUXURY_EASE,
-              }}
-              className="text-[13px] sm:text-sm md:text-base text-[#4D3F3D] font-light leading-relaxed max-w-md sm:max-w-lg"
-            >
+            <p className="text-[12px] xs:text-[13px] text-[#523F3D] font-light leading-relaxed pt-0.5">
               {slide.description}
-            </motion.p>
+            </p>
           </motion.div>
 
-          {/* 4. Minimal Editorial CTA Link (0.64s entrance) */}
+          {/* 3. CTA Button (Comfortable touch target, minimum 44px height) */}
           <motion.div
-            initial={getInitial(40, 12)}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={getExit()}
-            transition={{
-              duration: 0.8,
-              delay: 0.64,
-              ease: LUXURY_EASE,
-            }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.5, delay: 0.2, ease: LUXURY_EASE }}
+            className="pt-2"
           >
             <Link
               href={slide.href}
-              className="group inline-flex items-center space-x-2.5 sm:space-x-3 text-[11.5px] sm:text-xs md:text-sm font-sans tracking-[0.18em] sm:tracking-[0.2em] uppercase font-medium text-[#292321] hover:text-[#B97878] transition-colors duration-300 py-1.5 sm:py-2 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878]"
+              className="inline-flex items-center justify-between w-full xs:w-auto xs:inline-flex gap-3 px-5 py-3.5 min-h-[44px] rounded-full bg-[#FAF1EC] border border-[#E8C7B7] text-[#292321] text-[11.5px] xs:text-xs font-sans tracking-[0.18em] uppercase font-semibold shadow-sm hover:bg-[#F2DDD4] active:scale-[0.98] transition-all"
               aria-label={`Explore ${slide.theme} collection`}
             >
-              <span className="relative">
-                EXPLORE OUR COLLECTIONS
-                {/* Expanding Underline on Hover */}
-                <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#B97878] origin-left scale-x-75 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
-              </span>
-              <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#B97878] transform transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
+              <span>EXPLORE COLLECTIONS</span>
+              <ArrowRight className="w-4 h-4 text-[#B97878]" />
             </Link>
           </motion.div>
-
         </div>
       </div>
     </div>

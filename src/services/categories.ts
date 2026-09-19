@@ -1,6 +1,7 @@
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import type { Database, Category } from "@/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 
 export interface CategoryQueryResult {
   data: Category[] | null;
@@ -10,6 +11,16 @@ export interface CategoryQueryResult {
 export interface SingleCategoryQueryResult {
   data: Category | null;
   error: Error | null;
+}
+
+/**
+ * Normalizes a category record to ensure its image_url is fully resolved via Supabase storage.
+ */
+function normalizeCategory(cat: Category): Category {
+  return {
+    ...cat,
+    image_url: cat.image_url ? getStoragePublicUrl(cat.image_url) : `/images/occasions/${cat.slug}.jpg`,
+  };
 }
 
 /**
@@ -28,14 +39,14 @@ export async function getActiveCategories(
       .order("sort_order", { ascending: true });
 
     if (error) {
-      console.error("[Categories Service] Failed to fetch active categories:", error.message);
+      console.warn("[Categories Service] Note fetching categories:", error.message);
       return { data: null, error: new Error(error.message) };
     }
 
-    return { data, error: null };
+    const normalized = (data || []).map(normalizeCategory);
+    return { data: normalized, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error fetching categories";
-    console.error("[Categories Service] Unexpected error:", message);
     return { data: null, error: new Error(message) };
   }
 }
@@ -58,14 +69,12 @@ export async function getCategoryBySlug(
       .maybeSingle();
 
     if (error) {
-      console.error(`[Categories Service] Failed to fetch category by slug "${slug}":`, error.message);
       return { data: null, error: new Error(error.message) };
     }
 
-    return { data, error: null };
+    return { data: data ? normalizeCategory(data) : null, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error fetching category";
-    console.error("[Categories Service] Unexpected error:", message);
     return { data: null, error: new Error(message) };
   }
 }
@@ -87,14 +96,12 @@ export async function getCategoryById(
       .maybeSingle();
 
     if (error) {
-      console.error(`[Categories Service] Failed to fetch category by ID "${id}":`, error.message);
       return { data: null, error: new Error(error.message) };
     }
 
-    return { data, error: null };
+    return { data: data ? normalizeCategory(data) : null, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error fetching category";
-    console.error("[Categories Service] Unexpected error:", message);
     return { data: null, error: new Error(message) };
   }
 }

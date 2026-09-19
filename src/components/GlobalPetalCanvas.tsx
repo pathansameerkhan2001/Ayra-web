@@ -2,7 +2,10 @@
 
 import React, { useEffect, useRef } from "react";
 
-// Pre-render 7 distinct luxury floral/petal sprites on offscreen canvases
+// Track whether the animation has already run in the current browser session
+let hasExecutedInSession = false;
+
+// Pre-render distinct luxury floral/petal sprites on offscreen canvases
 function createPetalSprites(): HTMLCanvasElement[] {
   if (typeof document === "undefined") return [];
 
@@ -161,10 +164,10 @@ function createPetalSprites(): HTMLCanvasElement[] {
       ctx.beginPath();
       ctx.moveTo(0, 26);
       ctx.bezierCurveTo(-18, 20, -25, -2, -18, -22);
-      ctx.bezierCurveTo(-12, -30, -5, -28, -2, -22); // Left lobe
-      ctx.lineTo(0, -18); // Notch center
+      ctx.bezierCurveTo(-12, -30, -5, -28, -2, -22);
+      ctx.lineTo(0, -18);
       ctx.lineTo(2, -22);
-      ctx.bezierCurveTo(5, -28, 12, -30, 18, -22); // Right lobe
+      ctx.bezierCurveTo(5, -28, 12, -30, 18, -22);
       ctx.bezierCurveTo(25, -2, 18, 20, 0, 26);
       ctx.closePath();
 
@@ -242,13 +245,18 @@ export const GlobalPetalCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    // If it has already completed for this page lifecycle, do not restart
+    if (hasExecutedInSession) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // Check reduced motion preference
+    // Check prefers-reduced-motion
     const prefersReducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -256,6 +264,8 @@ export const GlobalPetalCanvas: React.FC = () => {
     if (prefersReducedMotion) {
       return;
     }
+
+    hasExecutedInSession = true;
 
     let animId: number | null = null;
     let isRunning = true;
@@ -280,12 +290,12 @@ export const GlobalPetalCanvas: React.FC = () => {
     const sprites = createPetalSprites();
     if (sprites.length === 0) return;
 
-    // Target particle count during entrance
-    const particleCount = isMobile ? 26 : 42;
+    // Particle count: lighter on mobile, rich on desktop
+    const particleCount = isMobile ? 24 : 38;
 
-    // Timing constants (12 seconds total duration)
-    const TOTAL_DURATION_MS = 12000;
-    const FADE_START_MS = 9500;
+    // Timing constants (13 seconds total duration: 0-2s burst, 2-10s drift, 10-13s fade out)
+    const TOTAL_DURATION_MS = 13000;
+    const FADE_START_MS = 10000;
     const startTime = Date.now();
 
     const particles: PetalParticle[] = [];
@@ -295,17 +305,16 @@ export const GlobalPetalCanvas: React.FC = () => {
       const startX = Math.random() * width;
       const startY = prewarm
         ? Math.random() * (height * 0.85)
-        : -40 - Math.random() * (height * 0.5);
+        : -40 - Math.random() * (height * 0.4);
 
-      // Sizes: clearly visible petals (18px - 34px)
       const sizeRand = Math.random();
       let scale: number;
       if (sizeRand < 0.3) {
-        scale = 0.28 + Math.random() * 0.08; // 20-26px
+        scale = 0.28 + Math.random() * 0.08;
       } else if (sizeRand < 0.75) {
-        scale = 0.36 + Math.random() * 0.10; // 26-33px
+        scale = 0.36 + Math.random() * 0.10;
       } else {
-        scale = 0.46 + Math.random() * 0.12; // 33-42px
+        scale = 0.46 + Math.random() * 0.12;
       }
 
       return {
@@ -330,13 +339,13 @@ export const GlobalPetalCanvas: React.FC = () => {
       particles.push(createParticle(prewarm));
     }
 
-    // Main 60 FPS Render Loop with graceful 12s stop
+    // Main 60 FPS Render Loop with graceful stop
     const render = () => {
       if (!isRunning) return;
 
       const elapsed = Date.now() - startTime;
 
-      // When 12s is reached, clear canvas and completely stop the loop
+      // When 13s is reached, clear canvas and completely STOP the animation loop
       if (elapsed >= TOTAL_DURATION_MS) {
         ctx.clearRect(0, 0, width, height);
         isRunning = false;
@@ -344,7 +353,7 @@ export const GlobalPetalCanvas: React.FC = () => {
         return;
       }
 
-      // Calculate global fading multiplier (1.0 during 0-9.5s, fading to 0.0 during 9.5-12s)
+      // Calculate global fading multiplier (1.0 during 0-10s, fading to 0.0 during 10-13s)
       let globalFade = 1;
       if (elapsed > FADE_START_MS) {
         globalFade = Math.max(0, 1 - (elapsed - FADE_START_MS) / (TOTAL_DURATION_MS - FADE_START_MS));
@@ -377,7 +386,7 @@ export const GlobalPetalCanvas: React.FC = () => {
         if (p.x < -40) p.x = width + 30;
         if (p.x > width + 40) p.x = -30;
 
-        // Calculate opacity with edge fade & global 12s fade
+        // Calculate opacity with edge fade & global fade
         let alpha = p.baseOpacity * globalFade;
         if (p.y < 30) {
           alpha *= Math.max(0.2, (p.y + 40) / 70);

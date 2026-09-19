@@ -1,4 +1,5 @@
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 import type {
   Database,
   Product,

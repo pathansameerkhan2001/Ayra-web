@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Sparkles,
-  Phone,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -78,10 +77,22 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu drawer is active
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <>
       <header
-        className={`sticky top-0 z-[10000] w-full h-[72px] sm:h-[76px] transition-all duration-300 ease-in-out ${
+        className={`sticky top-0 z-[10000] w-full h-[68px] sm:h-[76px] transition-all duration-300 ease-in-out ${
           isScrolled
             ? "bg-[#FFFDF9]/96 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(41,35,33,0.06)] border-b border-[#F2DDD4]"
             : "bg-[#FFFDF9] border-b border-[#F7EAE3]"
@@ -100,14 +111,14 @@ export const Header: React.FC = () => {
             </button>
           </div>
 
-          {/* BRAND LOGO */}
+          {/* BRAND LOGO (Centered on mobile, left-aligned on desktop) */}
           <div className="flex-shrink-0 flex items-center justify-center lg:justify-start">
             <Link
               href="/"
               className="group inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B97878] rounded-sm py-1"
               aria-label="Ayra Hampers Home"
             >
-              <div className="relative h-[38px] min-w-[140px] w-[145px] xs:w-[155px] sm:h-[48px] sm:w-[185px] md:w-[195px] transition-transform duration-300 group-hover:scale-[1.02]">
+              <div className="relative h-[36px] min-w-[135px] w-[140px] xs:w-[155px] sm:h-[48px] sm:w-[185px] md:w-[195px] transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image
                   src="/images/ayra-hampers-logo.svg"
                   alt="Ayra Hampers - Luxury Gifting"
@@ -239,7 +250,7 @@ export const Header: React.FC = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/35 backdrop-blur-[2px] z-[11000] lg:hidden"
+                className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[11000] lg:hidden"
                 aria-hidden="true"
               />
 
@@ -248,12 +259,12 @@ export const Header: React.FC = () => {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 26, stiffness: 240 }}
-                className="fixed inset-y-0 left-0 w-[84%] max-w-sm bg-[#FFFDF9] z-[11000] lg:hidden shadow-2xl flex flex-col justify-between border-r border-[#F2DDD4]"
+                className="fixed inset-y-0 left-0 w-[84%] max-w-sm bg-[#FFFDF9] z-[11000] lg:hidden shadow-2xl flex flex-col justify-between border-r border-[#F2DDD4] overflow-hidden"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Mobile Navigation Menu"
               >
-                <div className="p-5 overflow-y-auto">
+                <div className="p-5 overflow-y-auto flex-1">
                   <div className="flex items-center justify-between pb-4 border-b border-[#F2DDD4]">
                     <div className="relative h-[40px] w-[145px]">
                       <Image
@@ -343,7 +354,7 @@ export const Header: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-5 bg-[#FAF1EC] border-t border-[#F2DDD4] space-y-3">
+                <div className="p-5 bg-[#FAF1EC] border-t border-[#F2DDD4] space-y-3 shrink-0">
                   <div className="flex items-center space-x-2 text-xs text-[#5C4A48]">
                     <Sparkles className="w-4 h-4 text-[#B97878]" />
                     <span>Handcrafted luxury gifting across India</span>

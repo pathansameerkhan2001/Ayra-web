@@ -9,18 +9,15 @@ import type { Database } from "@/types/database";
 export function createClient() {
   const cookieStore = cookies();
 
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isValidUrl = Boolean(rawUrl && (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")));
-  const supabaseUrl = isValidUrl ? (rawUrl as string) : "https://placeholder-project.supabase.co";
-
-  const rawKey =
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const supabaseKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const supabaseKey = (rawKey && rawKey.length > 5) ? rawKey : "placeholder-publishable-key";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "";
 
-  if (!isValidUrl || !rawKey) {
+  if (!supabaseUrl || !supabaseKey) {
     console.warn(
-      "[Supabase Server] Using placeholder credentials. Configure NEXT_PUBLIC_SUPABASE_URL with a valid https:// URL in .env.local for live database connection."
+      "[Supabase Server] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in environment."
     );
   }
 
@@ -39,7 +36,7 @@ export function createClient() {
             );
           } catch {
             // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing user sessions.
+            // This can be ignored if middleware is refreshing user sessions.
           }
         },
       },

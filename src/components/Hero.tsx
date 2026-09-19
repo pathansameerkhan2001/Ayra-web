@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { HeroSlide, SlideContent } from "./HeroSlide";
 import { HeroControls } from "./HeroControls";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 
 const HERO_SLIDES: SlideContent[] = [
   {
@@ -16,7 +17,7 @@ const HERO_SLIDES: SlideContent[] = [
     headline2: "That Matter",
     supporting: "Beautiful hampers for every story.",
     description: "Curated with love. Wrapped with care. Made to make your loved ones feel special.",
-    href: "#shop",
+    href: "/products",
   },
   {
     id: 2,
@@ -27,7 +28,7 @@ const HERO_SLIDES: SlideContent[] = [
     headline2: "Beautifully",
     supporting: "Make their moment unforgettable.",
     description: "Thoughtfully curated gifts for birthdays worth remembering.",
-    href: "#birthday",
+    href: "/collections/birthday",
   },
   {
     id: 3,
@@ -38,7 +39,7 @@ const HERO_SLIDES: SlideContent[] = [
     headline2: "More Love",
     supporting: "Because some moments deserve more than words.",
     description: "Beautifully curated hampers made for meaningful moments.",
-    href: "#anniversary",
+    href: "/collections/anniversary",
   },
   {
     id: 4,
@@ -49,7 +50,7 @@ const HERO_SLIDES: SlideContent[] = [
     headline2: "The Joy",
     supporting: "Beautiful hampers for beautiful celebrations.",
     description: "Thoughtful festive gifting, beautifully presented.",
-    href: "#diwali",
+    href: "/collections/diwali-gifts",
   },
   {
     id: 5,
@@ -60,7 +61,7 @@ const HERO_SLIDES: SlideContent[] = [
     headline2: "By Design",
     supporting: "Gifts that leave a lasting impression.",
     description: "Premium gifting solutions for clients, teams and milestones.",
-    href: "#corporate",
+    href: "/collections/corporate-gifting",
   },
 ];
 
@@ -83,7 +84,7 @@ export const Hero: React.FC = () => {
     setCurrentSlide(index);
   };
 
-  // Keyboard navigation (Left / Right arrows)
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") {
@@ -97,7 +98,7 @@ export const Hero: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextSlide, prevSlide]);
 
-  // Auto Slider rotation (every 6.5 seconds, paused on hover or touch)
+  // Auto Slider rotation (every 6.5s)
   useEffect(() => {
     if (isPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -129,8 +130,7 @@ export const Hero: React.FC = () => {
     const deltaX = touchStartX.current - touchEndX;
     const deltaY = touchStartY.current - touchEndY;
 
-    // Trigger swipe if horizontal movement is greater than vertical & exceeds 40px
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 35) {
       if (deltaX > 0) {
         nextSlide();
       } else {
@@ -143,10 +143,12 @@ export const Hero: React.FC = () => {
   };
 
   const activeSlide = HERO_SLIDES[currentSlide];
+  const nextSlideIndex = (currentSlide + 1) % HERO_SLIDES.length;
+  const nextSlideImage = getStoragePublicUrl(HERO_SLIDES[nextSlideIndex].image);
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-[#FAF7F2] min-h-[560px] sm:min-h-[640px] md:h-[78vh] lg:min-h-[700px] lg:max-h-[820px] flex items-center select-none"
+      className="relative w-full overflow-hidden bg-[#FAF7F2] md:min-h-[640px] md:h-[78vh] lg:min-h-[700px] lg:max-h-[820px] flex flex-col md:flex-row md:items-center select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -155,22 +157,20 @@ export const Hero: React.FC = () => {
       aria-roledescription="carousel"
       aria-label="Ayra Hampers Luxury Collection"
     >
-      {/* Preload subsequent slide images in background for instant transitions */}
+      {/* Preload only the NEXT slide image in background for instant transition */}
       <div className="hidden" aria-hidden="true">
-        {HERO_SLIDES.slice(1).map((s) => (
-          <Image
-            key={s.id}
-            src={s.image}
-            alt=""
-            width={10}
-            height={10}
-            priority={false}
-          />
-        ))}
+        <Image
+          src={nextSlideImage}
+          alt=""
+          width={10}
+          height={10}
+          priority={false}
+          quality={50}
+        />
       </div>
 
-      {/* ACTIVE HERO SLIDE (Layered Crossfade & Synchronized Text Entrance) */}
-      <AnimatePresence mode="sync">
+      {/* ACTIVE HERO SLIDE (Crossfade & Smooth Transition) */}
+      <AnimatePresence mode="wait">
         <HeroSlide
           key={activeSlide.id}
           slide={activeSlide}

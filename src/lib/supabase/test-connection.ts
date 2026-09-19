@@ -34,8 +34,8 @@ export async function testSupabaseConnection(): Promise<SupabaseConnectionTestRe
     "";
   const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "ayra-products";
 
-  const hasUrl = Boolean(supabaseUrl && !supabaseUrl.includes("YOUR_SUPABASE_PROJECT_URL"));
-  const hasKey = Boolean(supabaseKey && !supabaseKey.includes("YOUR_SUPABASE_PUBLISHABLE_KEY"));
+  const hasUrl = Boolean(supabaseUrl && supabaseUrl.startsWith("http"));
+  const hasKey = Boolean(supabaseKey && supabaseKey.length > 10);
 
   if (!hasUrl || !hasKey) {
     return {
@@ -48,7 +48,7 @@ export async function testSupabaseConnection(): Promise<SupabaseConnectionTestRe
       expectedCategoriesPresent: false,
       rawCategoriesCount: 0,
       message:
-        "Supabase credentials are using placeholder values in .env.local. Update NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY with your live project keys to connect.",
+        "Supabase credentials are missing or unconfigured in .env.local. Update NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to connect.",
     };
   }
 
@@ -76,7 +76,7 @@ export async function testSupabaseConnection(): Promise<SupabaseConnectionTestRe
     }
 
     const categoryNames = categories ? categories.map((c) => c.name) : [];
-    
+
     // Check if expected categories are present
     const matchedCategories = EXPECTED_CATEGORIES.filter((expected) =>
       categoryNames.some(

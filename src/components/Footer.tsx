@@ -60,7 +60,7 @@ export function Footer() {
             </p>
             <div className="pt-2 flex items-center gap-3">
               <a
-                href="https://instagram.com/ayrahampers"
+                href="https://www.instagram.com/ayra_hampers._/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white border border-ayra-blush-200 flex items-center justify-center text-ayra-charcoal hover:text-ayra-rose hover:border-ayra-rose transition-colors"

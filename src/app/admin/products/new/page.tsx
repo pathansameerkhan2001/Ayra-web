@@ -3,7 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Upload, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { MediaUploadZone } from "@/components/admin/MediaUploadZone";
+import type { StorageFolder } from "@/lib/supabase/storage";
 
 export default function AdminNewProductPage() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function AdminNewProductPage() {
     isFeatured: true,
     isNew: true,
   });
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,6 +34,8 @@ export default function AdminNewProductPage() {
       router.push("/admin/products");
     }, 800);
   };
+
+  const targetFolder = `products/${formData.categorySlug}` as StorageFolder;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -97,10 +102,10 @@ export default function AdminNewProductPage() {
               >
                 <option value="birthday">Birthday</option>
                 <option value="anniversary">Anniversary</option>
-                <option value="diwali-gifts">Diwali Gifts</option>
+                <option value="diwali">Diwali Gifts</option>
                 <option value="new-born">New Born</option>
                 <option value="thank-you">Thank You</option>
-                <option value="corporate-gifting">Corporate Gifting</option>
+                <option value="corporate">Corporate Gifting</option>
               </select>
             </div>
 
@@ -175,13 +180,14 @@ export default function AdminNewProductPage() {
             3. Product Images (Supabase Storage: ayra-products)
           </h2>
 
-          <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center bg-gray-50/50 hover:bg-[#FAF7F2] transition-colors cursor-pointer">
-            <Upload className="w-8 h-8 text-[#B97878] mx-auto mb-2" />
-            <p className="font-medium text-gray-800">Click to upload product photography</p>
-            <p className="text-[11px] text-gray-400 mt-1">
-              Supports JPEG, PNG, WebP up to 5MB. Uploaded directly to <span className="font-mono">ayra-products/{formData.categorySlug}/</span>
-            </p>
-          </div>
+          <MediaUploadZone
+            folder={targetFolder}
+            acceptType="image"
+            onUploadSuccess={(url) => setUploadedImageUrl(url)}
+            currentUrl={uploadedImageUrl}
+            label="Product Primary Image"
+            helperText="Upload high-res hamper photography. Stored securely in ayra-products."
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-2">

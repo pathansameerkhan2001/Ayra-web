@@ -1,6 +1,7 @@
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import type { Database, HeroSlide } from "@/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 
 export const DEFAULT_HERO_SLIDES: HeroSlide[] = [
   {
@@ -50,11 +51,20 @@ export async function getActiveHeroSlides(
       .order("sort_order", { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return DEFAULT_HERO_SLIDES;
+      return DEFAULT_HERO_SLIDES.map((slide) => ({
+        ...slide,
+        image_url: getStoragePublicUrl(slide.image_url),
+      }));
     }
 
-    return (data as unknown as HeroSlide[]) || DEFAULT_HERO_SLIDES;
+    return (data as unknown as HeroSlide[]).map((slide) => ({
+      ...slide,
+      image_url: getStoragePublicUrl(slide.image_url),
+    }));
   } catch (err) {
-    return DEFAULT_HERO_SLIDES;
+    return DEFAULT_HERO_SLIDES.map((slide) => ({
+      ...slide,
+      image_url: getStoragePublicUrl(slide.image_url),
+    }));
   }
 }

@@ -7,6 +7,7 @@ import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import type { ProductWithDetails } from "@/types/database";
+import { getStoragePublicUrl } from "@/lib/supabase/storage";
 
 interface ProductCardProps {
   product: ProductWithDetails;
@@ -17,8 +18,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const isFavorited = isInWishlist(product.id);
-  const primaryImage =
-    product.images?.[0]?.image_url || "/images/occasions/birthday.jpg";
+  const rawImage = product.images?.[0]?.image_url || "/images/occasions/birthday.jpg";
+  const primaryImage = getStoragePublicUrl(rawImage);
+
   const hasDiscount =
     product.compare_at_price && product.compare_at_price > product.base_price;
   const discountPercent = hasDiscount
@@ -41,6 +43,7 @@ export function ProductCard({ product }: ProductCardProps) {
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+              priority={false}
             />
           </Link>
 

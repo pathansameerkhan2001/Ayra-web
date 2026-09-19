@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Plus, Instagram, Play, CheckCircle, XCircle, Trash2, Heart, MessageCircle } from "lucide-react";
 import { DEFAULT_INSTAGRAM_REELS } from "@/services/instagram";
+import { MediaUploadZone } from "@/components/admin/MediaUploadZone";
 
 export default function AdminInstagramPage() {
   const [reels, setReels] = useState(DEFAULT_INSTAGRAM_REELS);
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [uploadedThumbnailUrl, setUploadedThumbnailUrl] = useState<string>("");
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleAdd = (e: React.FormEvent) => {
@@ -20,7 +22,7 @@ export default function AdminInstagramPage() {
         id: `reel-${Date.now()}`,
         title: newTitle,
         reel_url: newUrl,
-        thumbnail_url: "/images/occasions/birthday.jpg",
+        thumbnail_url: uploadedThumbnailUrl || "/images/occasions/birthday.jpg",
         likes_count: 1200,
         comments_count: 45,
         display_order: reels.length + 1,
@@ -31,6 +33,7 @@ export default function AdminInstagramPage() {
     ]);
     setNewTitle("");
     setNewUrl("");
+    setUploadedThumbnailUrl("");
     setModalOpen(false);
   };
 
@@ -48,7 +51,7 @@ export default function AdminInstagramPage() {
             Instagram Reels & Moments Showcase
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Manage the social proof video cards displayed on the homepage.
+            Manage the social proof video cards displayed on the homepage. Media stored in <span className="font-mono font-semibold text-gray-700">ayra-products/instagram/</span>.
           </p>
         </div>
 
@@ -107,11 +110,11 @@ export default function AdminInstagramPage() {
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white max-w-sm w-full rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h3 className="font-serif text-lg font-bold text-gray-900">Add Instagram Reel</h3>
-            <form onSubmit={handleAdd} className="space-y-3 text-xs font-sans">
+            <form onSubmit={handleAdd} className="space-y-4 text-xs font-sans">
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Reel Title</label>
+                <label className="block text-gray-700 font-semibold mb-1">Reel Title *</label>
                 <input
                   type="text"
                   required
@@ -121,8 +124,9 @@ export default function AdminInstagramPage() {
                   className="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-[#B97878]"
                 />
               </div>
+
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Instagram Reel URL</label>
+                <label className="block text-gray-700 font-semibold mb-1">Instagram Reel URL *</label>
                 <input
                   type="url"
                   required
@@ -132,11 +136,23 @@ export default function AdminInstagramPage() {
                   className="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-[#B97878]"
                 />
               </div>
+
+              <div>
+                <MediaUploadZone
+                  folder="instagram"
+                  acceptType="image"
+                  onUploadSuccess={(url) => setUploadedThumbnailUrl(url)}
+                  currentUrl={uploadedThumbnailUrl}
+                  label="Thumbnail / Poster Image (Optional)"
+                  helperText="Upload custom poster image. Stored in ayra-products/instagram/."
+                />
+              </div>
+
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-300 font-semibold"
+                  className="flex-1 py-2.5 rounded-xl border border-gray-300 font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
